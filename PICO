@@ -10,16 +10,19 @@ I-Using XG Boost
 C-Using Support vector Machine
 O-improved accuracy for customer demand forecasting in BigBasket 
 
-Performance Analysis of XGBoost and LightGBM in Customer Demand Forecasting in BigBasket
+
+Performance Analysis of XGBoost and Extra Tree Classifier in Customer Demand Forecasting in BigBasket
 P-Predicting customer demand for BigBasket to optimize inventory, reduce stockouts, and manage overstocking effectively.
 I-Using XG Boost 
-C-Using LightGBM
+C-Using Extra Tree Classifier
 O-improved accuracy for customer demand forecasting in BigBasket 
 
-Optimizing Customer Demand Forecasting XGBoost and ARIMA in BigBasket
+
+
+Optimizing Customer Demand Forecasting XGBoost and KNN in BigBasket
 P-Predicting customer demand for BigBasket to optimize inventory, reduce stockouts, and manage overstocking effectively.
 I-Using XG Boost 
-C-Using ARIMA
+C-Using KNN
 O-improved accuracy for customer demand forecasting in BigBasket 
 
 
