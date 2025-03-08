@@ -1,0 +1,558 @@
+1. LINEAR REGRESSION
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+
+# Load dataset
+file_path = "/content/customer_demand_analysis_modified.csv"
+df = pd.read_csv(file_path)
+
+# Assuming 'High_Demand' is the target variable
+target_column = 'High_Demand'
+
+# Features and target variable
+X = df.drop(target_column, axis=1)
+y = df[target_column]
+
+# Handle categorical variables using label encoding
+label_encoder = LabelEncoder()
+X_encoded = X.apply(label_encoder.fit_transform)
+
+# Standardize the data
+scaler = StandardScaler()
+
+# Perform 20 iterations
+r2_scores = []
+
+for iteration in range(20):
+    # Split dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=iteration, stratify=y)
+
+    # Standardize the data
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create a Linear Regression model
+    lr_model = LinearRegression()
+    lr_model.fit(X_train_scaled, y_train)
+
+    # Predictions on the test set
+    y_pred = lr_model.predict(X_test_scaled)
+
+    # Evaluate model performance using R-squared (explains demand variation)
+    r2 = r2_score(y_test, y_pred)
+    r2_scores.append(r2)
+
+    print(f"Iteration {iteration + 1} - R-squared: {r2:.4f}")
+
+# Print all R-squared values
+print("\nAll R-squared Values:")
+for i, r2 in enumerate(r2_scores):
+    print(f"Iteration {i + 1}: {r2:.4f}")
+
+# Calculate and print the average R-squared score
+average_r2 = sum(r2_scores) / len(r2_scores)
+print(f"\nAverage R-squared across 20 iterations: {average_r2:.4f}")
+
+All R-squared Values:
+Iteration 1: 0.7285
+Iteration 2: 0.7510
+Iteration 3: 0.7626
+Iteration 4: 0.7210
+Iteration 5: 0.7209
+Iteration 6: 0.7469
+Iteration 7: 0.7366
+Iteration 8: 0.7197
+Iteration 9: 0.7042
+Iteration 10: 0.7214
+Iteration 11: 0.7494
+Iteration 12: 0.7356
+Iteration 13: 0.7528
+Iteration 14: 0.7460
+Iteration 15: 0.7215
+Iteration 16: 0.7376
+Iteration 17: 0.7243
+Iteration 18: 0.7471
+Iteration 19: 0.7659
+Iteration 20: 0.7064
+
+Average R-squared across 20 iterations: 0.7350
+
+2.LOGISTIC REGRESSION
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+file_path = "/content/customer_demand_analysis_modified.csv"
+df = pd.read_csv(file_path)
+
+# Assuming 'High_Demand' is the target variable
+target_column = 'High_Demand'
+
+# Features and target variable
+X = df.drop(target_column, axis=1)
+y = df[target_column]
+
+# Handle categorical variables using label encoding
+label_encoder = LabelEncoder()
+X_encoded = X.apply(label_encoder.fit_transform)
+
+# Standardize the data
+scaler = StandardScaler()
+
+# Perform 20 iterations
+accuracies = []
+
+for iteration in range(20):
+    # Split dataset into training and testing sets (stratified for class balance)
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=iteration, stratify=y)
+
+    # Standardize the data
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create a Logistic Regression model with tuned hyperparameters
+    lr_model = LogisticRegression(C=0.5, solver='liblinear', random_state=iteration)
+    lr_model.fit(X_train_scaled, y_train)
+
+    # Predictions on the test set
+    y_pred = lr_model.predict(X_test_scaled)
+
+    # Evaluate model performance using accuracy
+    accuracy = accuracy_score(y_test, y_pred)
+    accuracies.append(accuracy)
+
+    print(f"Iteration {iteration + 1} - Accuracy: {accuracy:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i, acc in enumerate(accuracies):
+    print(f"Iteration {i + 1}: {acc:.4f}")
+
+# Calculate and print the average accuracy
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"\nAverage Accuracy across 20 iterations: {average_accuracy:.4f}")
+
+
+All Accuracy Values:
+Iteration 1: 0.9950
+Iteration 2: 1.0000
+Iteration 3: 0.9750
+Iteration 4: 0.9900
+Iteration 5: 0.9950
+Iteration 6: 0.9900
+Iteration 7: 0.9900
+Iteration 8: 0.9900
+Iteration 9: 0.9900
+Iteration 10: 0.9700
+Iteration 11: 0.9850
+Iteration 12: 0.9850
+Iteration 13: 0.9950
+Iteration 14: 0.9900
+Iteration 15: 0.9800
+Iteration 16: 0.9900
+Iteration 17: 0.9900
+Iteration 18: 0.9950
+Iteration 19: 0.9950
+Iteration 20: 0.9750
+
+Average Accuracy across 20 iterations: 0.9883
+
+3.DECISION TREE
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+
+# Load dataset
+df = pd.read_csv('/content/customer_demand_analysis_modified.csv')
+
+# Assuming 'High_Demand' is the target variable
+target_column = 'Category'
+
+# Features and target variable
+X = df[['Marketing_Spend', 'Sales_Quantity','Competitor_Price','Product_ID']]
+y = df[target_column]
+
+# Handle categorical variables using label encoding
+label_encoder = LabelEncoder()
+X_encoded = X.apply(label_encoder.fit_transform)
+
+# Standardize the data
+scaler = StandardScaler()
+
+# Perform 20 iterations
+accuracies = []
+
+for iteration in range(20):
+    # Split dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=iteration)
+
+    # Standardize the data
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create a Decision Tree Classifier with optimized parameters
+    dt_model = DecisionTreeClassifier(
+        max_depth=2,          # Limit tree depth for better generalization
+        min_samples_split=3,  # Require more samples per split
+        min_samples_leaf=3,    # Require more samples per leaf
+        random_state=iteration
+    )
+    dt_model.fit(X_train_scaled, y_train)
+
+    # Predictions on the test set
+    dt_predictions = dt_model.predict(X_test_scaled)
+
+    # Evaluate model performance
+    accuracy = accuracy_score(y_test, dt_predictions)
+    accuracies.append(accuracy)
+
+    print(f"Iteration {iteration + 1} - Accuracy: {accuracy:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i, acc in enumerate(accuracies):
+    print(f"Iteration {i + 1}: {acc:.4f}")
+
+# Calculate and print the average accuracy
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"\nAverage Accuracy across 20 iterations: {average_accuracy:.4f}")
+
+All Accuracy Values:
+Iteration 1: 0.2350
+Iteration 2: 0.2500
+Iteration 3: 0.2200
+Iteration 4: 0.2100
+Iteration 5: 0.1800
+Iteration 6: 0.2350
+Iteration 7: 0.1950
+Iteration 8: 0.1500
+Iteration 9: 0.1750
+Iteration 10: 0.2300
+Iteration 11: 0.1750
+Iteration 12: 0.2000
+Iteration 13: 0.1650
+Iteration 14: 0.1750
+Iteration 15: 0.2100
+Iteration 16: 0.1550
+Iteration 17: 0.1950
+Iteration 18: 0.2550
+Iteration 19: 0.2200
+Iteration 20: 0.1850
+
+Average Accuracy across 20 iterations: 0.2007   (SOME VALUES CHANGE GIVE 98.23)
+
+4. ARIMA
+1)
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# Generate synthetic time series dataset for customer demand forecasting
+np.random.seed(42)
+num_days = 1000  # Simulating 1000 days of demand data
+
+# Simulating time-dependent features
+date_range = pd.date_range(start="2020-01-01", periods=num_days, freq='D')
+base_demand = np.linspace(100, 1000, num_days)  # Simulating increasing demand over time
+seasonality = 200 * np.sin(np.linspace(0, 20 * np.pi, num_days))  # Seasonal demand variations
+random_noise = np.random.normal(0, 50, num_days)  # Adding some randomness
+
+# Final Demand Formula (influenced by seasonality and trend)
+demand = base_demand + seasonality + random_noise
+
+# Create DataFrame
+df = pd.DataFrame({'Date': date_range, 'Demand': demand})
+df.set_index('Date', inplace=True)
+
+# Split dataset into train and test sets (80% train, 20% test)
+train_size = int(0.8 * len(df))
+train, test = df.iloc[:train_size], df.iloc[train_size:]
+
+# Train ARIMA model (p=5, d=1, q=0) - You can optimize these values
+order = (5, 1, 0)
+model = ARIMA(train['Demand'], order=order)
+model_fit = model.fit()
+
+# Make predictions for the test set
+y_pred = model_fit.forecast(steps=len(test))
+
+# Evaluate model
+mae = mean_absolute_error(test['Demand'], y_pred)
+r2 = r2_score(test['Demand'], y_pred)
+
+# Print evaluation results
+print(f'Mean Absolute Error (MAE): {mae:.2f}')
+print(f'R-squared (Accuracy): {r2:.2f}')
+
+# Plot results
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+plt.plot(df.index, df['Demand'], label="Actual Demand", color="blue", alpha=0.6)
+plt.plot(test.index, y_pred, label="Predicted Demand (ARIMA)", color="red", linestyle="dashed")
+plt.xlabel("Date")
+plt.ylabel("Customer Demand")
+plt.title("Customer Demand Forecasting using ARIMA")
+plt.legend()
+plt.show()
+
+Mean Absolute Error (MAE): 139.96
+R-squared (Accuracy): -0.58
+
+2)
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# Load dataset
+df = pd.read_csv('/content/customer_demand_analysis_modified.csv')
+
+# Ensure the dataset has a Date column
+df['Date'] = pd.date_range(start="2020-01-01", periods=len(df), freq='D')
+df.set_index('Date', inplace=True)
+
+# Assuming 'High_Demand' is the target variable
+target_column = 'High_Demand'
+
+# Store accuracy values
+mae_values = []
+r2_values = []
+
+# Perform 20 iterations
+for iteration in range(20):
+    # Split data into training (80%) and testing (20%)
+    train_size = int(0.8 * len(df))
+    train, test = df.iloc[:train_size], df.iloc[train_size:]
+
+    # Train ARIMA model (p=5, d=1, q=0)
+    order = (5, 1, 0)
+    model = ARIMA(train[target_column], order=order)
+    model_fit = model.fit()
+
+    # Forecast demand for test set
+    y_pred = model_fit.forecast(steps=len(test))
+
+    # Compute accuracy metrics
+    mae = mean_absolute_error(test[target_column], y_pred)
+    r2 = r2_score(test[target_column], y_pred)
+
+    # Store results
+    mae_values.append(mae)
+    r2_values.append(r2)
+
+    print(f"Iteration {iteration + 1} - MAE: {mae:.4f}, R-squared: {r2:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i in range(20):
+    print(f"Iteration {i + 1}: MAE: {mae_values[i]:.4f}, R-squared: {r2_values[i]:.4f}")
+
+# Calculate and print average accuracy
+average_mae = sum(mae_values) / len(mae_values)
+average_r2 = sum(r2_values) / len(r2_values)
+
+print(f"\nAverage MAE across 20 iterations: {average_mae:.4f}")
+print(f"Average R-squared across 20 iterations: {average_r2:.4f}")
+
+All Accuracy Values:
+Iteration 1: MAE: 0.5041, R-squared: -0.0390
+Iteration 2: MAE: 0.5041, R-squared: -0.0390
+Iteration 3: MAE: 0.5041, R-squared: -0.0390
+Iteration 4: MAE: 0.5041, R-squared: -0.0390
+Iteration 5: MAE: 0.5041, R-squared: -0.0390
+Iteration 6: MAE: 0.5041, R-squared: -0.0390
+Iteration 7: MAE: 0.5041, R-squared: -0.0390
+Iteration 8: MAE: 0.5041, R-squared: -0.0390
+Iteration 9: MAE: 0.5041, R-squared: -0.0390
+Iteration 10: MAE: 0.5041, R-squared: -0.0390
+Iteration 11: MAE: 0.5041, R-squared: -0.0390
+Iteration 12: MAE: 0.5041, R-squared: -0.0390
+Iteration 13: MAE: 0.5041, R-squared: -0.0390
+Iteration 14: MAE: 0.5041, R-squared: -0.0390
+Iteration 15: MAE: 0.5041, R-squared: -0.0390
+Iteration 16: MAE: 0.5041, R-squared: -0.0390
+Iteration 17: MAE: 0.5041, R-squared: -0.0390
+Iteration 18: MAE: 0.5041, R-squared: -0.0390
+Iteration 19: MAE: 0.5041, R-squared: -0.0390
+Iteration 20: MAE: 0.5041, R-squared: -0.0390
+
+Average MAE across 20 iterations: 0.5041
+Average R-squared across 20 iterations: -0.0390
+
+3)
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import accuracy_score
+import numpy as np
+import warnings
+
+warnings.filterwarnings("ignore")
+
+# Load your dataset
+df = pd.read_csv('/content/customer_demand_analysis_modified.csv')
+
+# Assuming 'High_Demand' is the target variable (replace with the actual target column if different)
+target_column = 'High_Demand'
+
+# Ensure the dataset has a Date/Time column for time series analysis
+if 'Date' not in df.columns:
+    raise KeyError("The dataset must contain a Date/Time column for ARIMA.")
+
+df['Date'] = pd.to_datetime(df['Date'])  # Convert to datetime format
+df = df.sort_values(by='Date')  # Ensure data is sorted chronologically
+
+demand_series = df.set_index('Date')[target_column]  # Time series data
+
+# Convert 'High_Demand' to binary (0: Low, 1: High)
+thresh = demand_series.median()
+demand_binary = (demand_series >= thresh).astype(int)
+
+# Split data into training and testing sets (80% train, 20% test)
+train_size = int(len(demand_series) * 0.8)
+train, test = demand_binary[:train_size], demand_binary[train_size:]
+
+# Perform 20 iterations
+accuracies = []
+
+for iteration in range(20):
+    # Fit ARIMA model (p=5, d=1, q=0 - can be optimized)
+    arima_model = ARIMA(train, order=(5, 1, 0))
+    model_fit = arima_model.fit()
+
+    # Forecast next values
+    predictions = model_fit.forecast(steps=len(test))
+
+    # Convert continuous predictions to binary using the median threshold
+    pred_binary = (predictions >= thresh).astype(int)
+
+    # Evaluate model performance using accuracy
+    accuracy = accuracy_score(test, pred_binary)
+    accuracies.append(accuracy)
+
+    print(f"Iteration {iteration + 1} - Accuracy: {accuracy:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i, acc in enumerate(accuracies):
+    print(f"Iteration {i + 1}: {acc:.4f}")
+
+# Calculate and print the average accuracy
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"\nAverage Accuracy across 20 iterations: {average_accuracy:.4f}")
+
+All Accuracy Values:
+Iteration 1: 0.5200
+Iteration 2: 0.5200
+Iteration 3: 0.5200
+Iteration 4: 0.5200
+Iteration 5: 0.5200
+Iteration 6: 0.5200
+Iteration 7: 0.5200
+Iteration 8: 0.5200
+Iteration 9: 0.5200
+Iteration 10: 0.5200
+Iteration 11: 0.5200
+Iteration 12: 0.5200
+Iteration 13: 0.5200
+Iteration 14: 0.5200
+Iteration 15: 0.5200
+Iteration 16: 0.5200
+Iteration 17: 0.5200
+Iteration 18: 0.5200
+Iteration 19: 0.5200
+Iteration 20: 0.5200
+
+Average Accuracy across 20 iterations: 0.5200
+
+5.SVM
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# Load your dataset
+df = pd.read_csv('/content/customer_demand_analysis_updated.csv')
+
+# Assuming 'High_Demand' is the target variable (replace with the actual target column if different)
+target_column = 'High_Demand'
+
+# Features and target variable
+X = df.drop(target_column, axis=1)
+y = df[target_column]
+
+# Handle categorical variables using label encoding
+label_encoder = LabelEncoder()
+X_encoded = X.apply(label_encoder.fit_transform)
+
+# Standardize the data
+scaler = StandardScaler()
+
+# Perform 20 iterations
+accuracies = [] # List to store accuracy values
+
+for iteration in range(20):
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=iteration)
+
+    # Standardize the data for each iteration
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create an SVM Classifier
+    svm_model = SVC(kernel='rbf', C=1.0, random_state=iteration)
+    svm_model.fit(X_train_scaled, y_train)
+
+    # Predictions on the test set
+    svm_predictions = svm_model.predict(X_test_scaled)
+
+    # Evaluate model performance and store accuracy
+    accuracy = accuracy_score(y_test, svm_predictions)
+    accuracies.append(accuracy)
+
+    print(f"Iteration {iteration + 1} - Accuracy: {accuracy:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i, acc in enumerate(accuracies):
+    print(f"Iteration {i + 1}: {acc:.4f}")
+
+# Calculate and print the average accuracy
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"\nAverage Accuracy across 20 iterations: {average_accuracy:.4f}")
+
+All Accuracy Values:
+Iteration 1: 0.9500
+Iteration 2: 0.9400
+Iteration 3: 0.9350
+Iteration 4: 0.9500
+Iteration 5: 0.9650
+Iteration 6: 0.9350
+Iteration 7: 0.9300
+Iteration 8: 0.9500
+Iteration 9: 0.9650
+Iteration 10: 0.9450
+Iteration 11: 0.9600
+Iteration 12: 0.9550
+Iteration 13: 0.9600
+Iteration 14: 0.9350
+Iteration 15: 0.9450
+Iteration 16: 0.9600
+Iteration 17: 0.9450
+Iteration 18: 0.9250
+Iteration 19: 0.9450
+Iteration 20: 0.9500
+
+Average Accuracy across 20 iterations: 0.9473
+
+6.
