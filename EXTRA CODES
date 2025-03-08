@@ -555,4 +555,272 @@ Iteration 20: 0.9500
 
 Average Accuracy across 20 iterations: 0.9473
 
-6.
+6.LIGHT GBM
+1)
+import pandas as pd
+import lightgbm as lgb
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score
+
+# Load your dataset
+df = pd.read_csv('/content/customer_demand_analysis_modified.csv')
+
+# Assuming 'High_Demand' is the target variable (replace with the actual target column if different)
+target_column = 'High_Demand'
+
+# Features and target variable
+X = df[['Price']]
+y = df[target_column]
+
+# Handle categorical variables using label encoding
+label_encoder = LabelEncoder()
+X_encoded = X.apply(label_encoder.fit_transform)
+
+# Standardize the data
+scaler = StandardScaler()
+
+# Perform 20 iterations
+accuracies = [] # List to store accuracy values
+
+for iteration in range(20):
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=iteration)
+
+    # Standardize the data for each iteration
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    # Create a LightGBM Classifier
+    lgb_model = lgb.LGBMClassifier(n_estimators=100, random_state=iteration)
+    lgb_model.fit(X_train_scaled, y_train)
+
+    # Predictions on the test set
+    lgb_predictions = lgb_model.predict(X_test_scaled)
+
+    # Evaluate model performance and store accuracy
+    accuracy = accuracy_score(y_test, lgb_predictions)
+    accuracies.append(accuracy)
+
+    print(f"Iteration {iteration + 1} - Accuracy: {accuracy:.4f}")
+
+# Print all accuracy values
+print("\nAll Accuracy Values:")
+for i, acc in enumerate(accuracies):
+    print(f"Iteration {i + 1}: {acc:.4f}")
+
+# Calculate and print the average accuracy
+average_accuracy = sum(accuracies) / len(accuracies)
+print(f"\nAverage Accuracy across 20 iterations: {average_accuracy:.4f}")
+
+All Accuracy Values:
+Iteration 1: 0.5500
+Iteration 2: 0.5300
+Iteration 3: 0.4850
+Iteration 4: 0.5450
+Iteration 5: 0.5000
+Iteration 6: 0.5450
+Iteration 7: 0.5350
+Iteration 8: 0.5050
+Iteration 9: 0.4750
+Iteration 10: 0.4850
+Iteration 11: 0.4900
+Iteration 12: 0.5200
+Iteration 13: 0.5500
+Iteration 14: 0.5350
+Iteration 15: 0.5200
+Iteration 16: 0.5250
+Iteration 17: 0.5250
+Iteration 18: 0.5300
+Iteration 19: 0.4500
+Iteration 20: 0.5100
+
+Average Accuracy across 20 iterations: 0.5155
+2)
+import pandas as pd
+import numpy as np
+import lightgbm as lgb
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+
+# Generate synthetic dataset for customer demand forecasting
+np.random.seed(42)
+num_samples = 10000
+
+data = {
+    'Price': np.random.uniform(50, 500, num_samples),
+    'Marketing_Spend': np.random.uniform(1000, 10000, num_samples),
+    'Competitor_Price': np.random.uniform(50, 500, num_samples),
+    'Stock_Availability': np.random.choice([0, 1], num_samples, p=[0.2, 0.8]),  # 0: Out of Stock, 1: In Stock
+    'Seasonality': np.random.choice([0, 1], num_samples, p=[0.7, 0.3]),  # 1: Seasonal Demand
+    'Past_Demand': np.random.randint(100, 1000, num_samples),  # Previous sales data
+}
+
+df = pd.DataFrame(data)
+
+# Create target variable (simulating demand as a function of given features)
+df['Demand'] = (
+    5000
+    - 8 * df['Price']
+    + 0.05 * df['Marketing_Spend']
+    - 5 * df['Competitor_Price']
+    + 500 * df['Stock_Availability']
+    + 800 * df['Seasonality']
+    + 0.8 * df['Past_Demand']
+    + np.random.normal(0, 200, num_samples)  # Adding some noise
+)
+
+# Define features and target
+X = df[['Price', 'Marketing_Spend', 'Competitor_Price', 'Seasonality']]
+y = df['Demand']
+
+# Normalize numerical features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# Create LightGBM dataset
+train_data = lgb.Dataset(X_train, label=y_train)
+test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
+
+# Set LightGBM parameters
+params = {
+    'objective': 'regression',
+    'metric': 'r2',
+    'boosting_type': 'gbdt',
+    'learning_rate': 0.05,
+    'num_leaves': 10,
+    'max_depth': -1,
+    'n_estimators': 30
+}
+
+# Train LightGBM model
+model = lgb.train(params, train_data, valid_sets=[test_data])
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate model using R-squared
+r2 = r2_score(y_test, y_pred)
+print(f'R-squared (Accuracy): {r2:.2f}')
+
+[LightGBM] [Info] Auto-choosing col-wise multi-threading, the overhead of testing was 0.000389 seconds.
+You can set `force_col_wise=true` to remove the overhead.
+[LightGBM] [Info] Total Bins 768
+[LightGBM] [Info] Number of data points in the train set: 8000, number of used features: 4
+[LightGBM] [Info] Start training from score 2796.501213
+R-squared (Accuracy): 0.83
+3)
+import pandas as pd
+import numpy as np
+import lightgbm as lgb
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import r2_score
+
+# Generate synthetic dataset for customer demand forecasting
+np.random.seed(42)
+num_samples = 10000
+
+data = {
+    'Price': np.random.uniform(50, 500, num_samples),
+    'Marketing_Spend': np.random.uniform(1000, 10000, num_samples),
+    'Competitor_Price': np.random.uniform(50, 500, num_samples),
+    'Stock_Availability': np.random.choice([0, 1], num_samples, p=[0.2, 0.8]),  # 0: Out of Stock, 1: In Stock
+    'Seasonality': np.random.choice([0, 1], num_samples, p=[0.7, 0.3]),  # 1: Seasonal Demand
+    'Past_Demand': np.random.randint(100, 1000, num_samples),  # Previous sales data
+}
+
+df = pd.DataFrame(data)
+
+# Create target variable (simulating demand as a function of given features)
+df['Demand'] = (
+    5000
+    - 8 * df['Price']
+    + 0.05 * df['Marketing_Spend']
+    - 5 * df['Competitor_Price']
+    + 500 * df['Stock_Availability']
+    + 800 * df['Seasonality']
+    + 0.8 * df['Past_Demand']
+    + np.random.normal(0, 200, num_samples)  # Adding some noise
+)
+
+# Define features and target
+X = df[['Price', 'Marketing_Spend', 'Competitor_Price', 'Seasonality']]
+y = df['Demand']
+
+# Normalize numerical features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Perform 20 iterations
+r2_scores = []
+for iteration in range(20):
+    # Split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=iteration)
+
+    # Create LightGBM dataset
+    train_data = lgb.Dataset(X_train, label=y_train)
+    test_data = lgb.Dataset(X_test, label=y_test, reference=train_data)
+
+    # Set LightGBM parameters
+    params = {
+        'objective': 'regression',
+        'metric': 'r2',
+        'boosting_type': 'gbdt',
+        'learning_rate': 0.05,
+        'num_leaves': 10,
+        'max_depth': -1,
+        'n_estimators': 30
+    }
+
+    # Train LightGBM model
+    model = lgb.train(params, train_data, valid_sets=[test_data])
+
+    # Make predictions
+    y_pred = model.predict(X_test)
+
+    # Evaluate model using R-squared
+    r2 = r2_score(y_test, y_pred)
+    r2_scores.append(r2)
+    print(f'Iteration {iteration + 1} - R-squared (Accuracy): {r2:.2f}')
+
+# Print all R-squared values
+print("\nAll R-squared Values:")
+for i, r2 in enumerate(r2_scores):
+    print(f"Iteration {i + 1}: {r2:.2f}")
+
+# Calculate and print the average R-squared
+average_r2 = sum(r2_scores) / len(r2_scores)
+print(f"\nAverage R-squared across 20 iterations: {average_r2:.2f}")
+
+
+All R-squared Values:
+Iteration 1: 0.83
+Iteration 2: 0.83
+Iteration 3: 0.83
+Iteration 4: 0.83
+Iteration 5: 0.82
+Iteration 6: 0.83
+Iteration 7: 0.83
+Iteration 8: 0.83
+Iteration 9: 0.83
+Iteration 10: 0.84
+Iteration 11: 0.82
+Iteration 12: 0.83
+Iteration 13: 0.83
+Iteration 14: 0.83
+Iteration 15: 0.83
+Iteration 16: 0.83
+Iteration 17: 0.83
+Iteration 18: 0.83
+Iteration 19: 0.83
+Iteration 20: 0.83
+
+Average R-squared across 20 iterations: 0.83
+
+4)
+
