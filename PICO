@@ -19,7 +19,7 @@ O-improved accuracy for customer demand forecasting in BigBasket
 
 
 
-Optimizing Customer Demand Forecasting XGBoost and KNN in BigBasket
+Optimizing Customer Demand Forecasting Using XGBoost and KNN in BigBasket
 P-Predicting customer demand for BigBasket to optimize inventory, reduce stockouts, and manage overstocking effectively.
 I-Using XG Boost 
 C-Using KNN
